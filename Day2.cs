@@ -30,19 +30,28 @@ class Day2{
         }
 
         var sum = 0;
+        var sum2=0;
 
         foreach (var game in games)
         {
             var succ=true;
+            var minBlue=0;
+            var minRed=0;
+            var minGreen=0;
             foreach (var show in game.Value)
             {
                 if (show.ContainsKey("red") && show["red"] > 12) succ=false;
                 if (show.ContainsKey("green") && show["green"] > 13) succ=false;
                 if (show.ContainsKey("blue") && show["blue"] > 14) succ=false;
+                if (show.ContainsKey("red")) minRed = Math.Max(minRed, show["red"]);
+                if (show.ContainsKey("green")) minGreen = Math.Max(minGreen, show["green"]);
+                if (show.ContainsKey("blue")) minBlue = Math.Max(minBlue, show["blue"]);
             }
             if (succ) sum += game.Key;
+            sum2 += (minRed*minGreen*minBlue);
         }
 
         Console.WriteLine($"Sum: {sum}");
+        Console.WriteLine($"Sum2: {sum2}");
     }
 }

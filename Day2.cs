@@ -6,7 +6,7 @@ class Day2{
         Regex showR = new(@"[^;]*");
         Regex blocksR = new(@"(\d+) (blue|green|red)");
 
-        var lines = System.IO.File.ReadAllLines("input/day2");
+        var lines = Helper.getInputAsLines(2);
 
         Dictionary<int, List<Dictionary<string, int>>> games = new();
 

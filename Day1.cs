@@ -6,8 +6,11 @@ class Day1 {
 
         Console.WriteLine("Hello, World!");
 
-        var lines = System.IO.File.ReadAllLines("input/day1");
-        System.Text.RegularExpressions.Regex r = new(@"(\d|one|two|three|four|five|six|seven|eight|nine)");
+        var lines = Helper.getInputAsLines(1);
+        
+        System.Text.RegularExpressions.Regex rA = new(@"(\d)");
+        System.Text.RegularExpressions.Regex rB = new(@"(\d|one|two|three|four|five|six|seven|eight|nine)");
+        Regex rB2 = new(@"(\d|one|two|three|four|five|six|seven|eight|nine)", RegexOptions.RightToLeft);
 
         var num2num = (Match a) => {
             switch (a.Value)
@@ -26,18 +29,24 @@ class Day1 {
             }
         };
 
-        var sum = 0;
+        var sumA = 0;
+        var sumB = 0;
         foreach (string line in lines)
         {
-            var matches = r.Matches(line);
-            var first = matches.First();
-            var last = matches.Last();
+            var matchesA = rA.Matches(line);
+            var firstA = matchesA.First();
+            var lastA = matchesA.Last();
+            var firstB = rB.Match(line);
+            var lastB = rB2.Match(line);
 
-            var no = int.Parse($"{num2num(first)}{num2num(last)}");
-            Console.WriteLine(no);
-            sum += no;
+            var no = int.Parse($"{num2num(firstA)}{num2num(lastA)}");
+            var noB = int.Parse($"{num2num(firstB)}{num2num(lastB)}");
+            
+            sumA += no;
+            sumB += noB;
         }
 
-        Console.WriteLine($"Sum: {sum}");
+        Console.WriteLine($"Sum: {sumA}");
+        Console.WriteLine($"SumB: {sumB}");
     }
 }

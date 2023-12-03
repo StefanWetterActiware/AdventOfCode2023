@@ -5,8 +5,8 @@ static class Helper
 {
     private static string cachefileTempl = "input/day{0}";
 
-    private static string getCacheFileName(int tag) {
-        return string.Format(cachefileTempl, tag);
+    private static string getCacheFileName(int tag, bool test = false) {
+        return string.Format(cachefileTempl, tag) + (test ? "test":"");
     }
     
     [DebuggerHidden]
@@ -27,15 +27,15 @@ static class Helper
     }
 
     [DebuggerHidden]
-    public static IEnumerable<string> getInputAsLines(int tag){
+    public static IEnumerable<string> getInputAsLines(int tag, bool test = false){
         loadInput(tag);
-        return System.IO.File.ReadAllLines(getCacheFileName(tag)).Where(a=> !String.IsNullOrWhiteSpace(a));
+        return System.IO.File.ReadAllLines(getCacheFileName(tag,test)).Where(a=> !String.IsNullOrWhiteSpace(a));
     }
 
     [DebuggerHidden]
-    public static string getInput(int tag){
+    public static string getInput(int tag, bool test = false){
         loadInput(tag);
-        return System.IO.File.ReadAllText(getCacheFileName(tag)).TrimEnd("@\r\n".ToCharArray());
+        return System.IO.File.ReadAllText(getCacheFileName(tag, test)).TrimEnd("@\r\n".ToCharArray());
     }
 
 }

@@ -17,12 +17,17 @@ static class Day5{
 
         var allTabs = new List<List<List<long>>>();
 
-        var oneStep = (List<List<long>> tab, long no) => {
+        var oneStep = (List<List<long>> tab, long no, out long howManyAfterThis) => {
             var f = tab.Where(a=> no >= a[1] && no < a[1]+a[2]);
             if (f.Any()) {
                 var a = f.First();
+                howManyAfterThis=a[1]+a[2]-no;
                 return no - (a[1]-a[0]);
             } else {
+                var x = tab.Where(a=>a[1]>no);
+                howManyAfterThis=long.MaxValue;
+                if (x.Any())
+                    howManyAfterThis=x.Select(a=>a[1]).Order().First()-no;
                 return no;
             }
         };
@@ -34,16 +39,19 @@ static class Day5{
                 var newLine = new List<long>();
                 foreach (var source in levelvals.Last())
                 {
-                    newLine.Add(oneStep(tab, source));
+                    newLine.Add(oneStep(tab, source, out long dummy));
                 }
                 levelvals.Add(newLine);
             }
         };
 
-        var allSteps = (long no) => {
+        var allSteps = (long no, out long howManyAfterThis) => {
+            howManyAfterThis=long.MaxValue;
+
             foreach (var lev in allTabs)
             {
-                no=oneStep(lev, no);
+                no=oneStep(lev, no, out long howManyAfterThisThisStep);
+                howManyAfterThis = Math.Min(howManyAfterThis, howManyAfterThisThisStep);
             }
             return no;
         };
@@ -66,14 +74,12 @@ static class Day5{
         }
         step(tab);
 
-        //Völlige Gurkenlösung. Brute Force. Nach 2/3 auf gut Glück den aktuellen Min-Wert eingegeben und passt. Glück gehabt
-        // Besser wäre vermutlich einfach, bei jeder Berechnung zurückzubekommen,
-        // wie viele Zahlen ab der zuletzt berechneten in allen Stufen noch ins gleiche Raster fallen, und die dann einfach zu überspringen
         for (int i = 0; i < startseeds.Count; i+=2)
         {
             for (long j = startseeds[i]; j < startseeds[i] + startseeds[i+1]; j++)
             {
-                valB=Math.Min(valB, allSteps(j));
+                valB=Math.Min(valB, allSteps(j, out long howManySame));
+                j+=Math.Max(0,howManySame-1);
             }
         }
 

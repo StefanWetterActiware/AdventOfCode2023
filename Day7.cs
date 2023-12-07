@@ -5,17 +5,19 @@ using System.Text.RegularExpressions;
         class SetStrength{
             public static int get(string a){
                 var b = a.ToCharArray();
-                if (b.Distinct().Count() == 1) return 15;
-                if (b.Distinct().Count() == 2) {
+                var anzDiffC = b.Distinct().Count();
+                if (anzDiffC == 1)
+                    return 15;
+                if (anzDiffC == 2) {
                     var c = a.Replace(b.First().ToString(), "");
-                    if (c.Length == 1) return 14; //4ofakind
-                    if (c.Length == 2) return 13; //fullhouse
+                    if (c.Length == 1 || c.Length == 4) return 14; //4ofakind
+                    else return 13; //fullhouse
                 }
-                if (b.Distinct().Count() == 3) {
+                if (anzDiffC == 3) {
                     if (b.GroupBy(d => d).Any(x => x.Count() == 3)) return 12; //3ofak
                     if (b.GroupBy(d=>d).Where(x=>x.Count() == 2).Count() == 2) return 11; //2pair
-                    if (b.GroupBy(d=>d).Where(x=>x.Count() == 2).Count() == 1) return 10; //1pair
                 }
+                if (anzDiffC == 4) return 10; //1pair
                 return 1;
             }
         }
@@ -75,7 +77,7 @@ static class Day7{
 
         var sets = lines.Select(a => a.Split(" ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)).ToDictionary(a => a[0], a => int.Parse(a[1]));
 
-
+        var anzDiffSets = sets.Keys.Distinct().Count();
 
         var c = new Comp();
         var orderedsets = sets.OrderBy(a => a.Key, c);

@@ -22,7 +22,40 @@ using System.Text.RegularExpressions;
             }
         }
 
-        class Xn{
+        class SetStrengthB{
+            public static int get(string a){
+                var b = a.ToCharArray();
+
+                //Joker berechnen
+                if (a.Contains("J") && a != "JJJJJ") {
+            var gruppen = b.GroupBy(d => d).OrderByDescending(a=> a.Count());
+            //Wenn Joker die GRÖSSTE Gruppe sind, dann der 2. Gruppe hinzufügen, sonst der grössten Gruppe
+            if (gruppen.First().Key == 'J') {
+                a = a.Replace('J', gruppen.Skip(1).First().Key);
+            } else {
+                a = a.Replace('J', gruppen.First().Key);
+            }
+            b = a.ToCharArray();
+        }
+
+                var anzDiffC = b.Distinct().Count();
+                if (anzDiffC == 1)
+                    return 15;
+                if (anzDiffC == 2) {
+                    var c = a.Replace(b.First().ToString(), "");
+                    if (c.Length == 1 || c.Length == 4) return 14; //4ofakind
+                    else return 13; //fullhouse
+                }
+                if (anzDiffC == 3) {
+                    if (b.GroupBy(d => d).Any(x => x.Count() == 3)) return 12; //3ofak
+                    if (b.GroupBy(d=>d).Where(x=>x.Count() == 2).Count() == 2) return 11; //2pair
+                }
+                if (anzDiffC == 4) return 10; //1pair
+                return 1;
+            }
+        }
+
+        class cardStrenA{
                     public static int cardVal  (char a)  {
             switch (a)
             {
@@ -36,31 +69,52 @@ using System.Text.RegularExpressions;
             }
         }
         }
+class cardStrenB {
+    public static int cardVal(char a) {
+        switch (a) {
+            case 'A':
+                return 14;
+            case 'K':
+                return 13;
+            case 'Q':
+                return 12;
+            case 'J':
+                return 1;
+            case 'T':
+                return 10;
+            default:
+                return int.Parse(a.ToString());
+        }
+    }
+}
 
-        class Comp:IComparer<string>{
+class Comp :IComparer<string>{
             public int Compare(string? x, string? y) {
                 if (SetStrength.get(x) > SetStrength.get(y)) return 1;
                 if (SetStrength.get(x) < SetStrength.get(y)) return -1;
 
                 for (int i = 0; i < x.Length; i++)
                 {
-                    var c = Xn.cardVal(x[i]) - Xn.cardVal(y[i]);
+                    var c = cardStrenA.cardVal(x[i]) - cardStrenA.cardVal(y[i]);
                     if (c!=0) return c;
                 }
 
                 return 0;
+            }
+        }
 
-                if (Xn.cardVal(x.ToCharArray().GroupBy(a=>a).OrderBy(a=>a.Count()).First().Key) > 
-                Xn.cardVal(y.ToCharArray().GroupBy(a=>a).OrderBy(a=>a.Count()).First().Key)) return 1;
-                if (Xn.cardVal(x.ToCharArray().GroupBy(a=>a).OrderBy(a=>a.Count()).First().Key) <
-                Xn.cardVal(y.ToCharArray().GroupBy(a=>a).OrderBy(a=>a.Count()).First().Key)) return -1;
+class CompB :IComparer<string>{
+            public int Compare(string? x, string? y) {
+                if (SetStrengthB.get(x) > SetStrengthB.get(y)) return 1;
+                if (SetStrengthB.get(x) < SetStrengthB.get(y)) return -1;
 
-                if (Xn.cardVal(x.ToCharArray().GroupBy(a=>a).OrderBy(a=>a.Count()).Skip(1).First().Key) > 
-                Xn.cardVal(y.ToCharArray().GroupBy(a=>a).OrderBy(a=>a.Count()).Skip(1).First().Key)) return 1;
-                if (Xn.cardVal(x.ToCharArray().GroupBy(a=>a).OrderBy(a=>a.Count()).Skip(1).First().Key) <
-                Xn.cardVal(y.ToCharArray().GroupBy(a=>a).OrderBy(a=>a.Count()).Skip(1).First().Key)) return -1;
+                for (int i = 0; i < x.Length; i++)
+                {
+                    var c = cardStrenB.cardVal(x[i]) - cardStrenB.cardVal(y[i]);
+                    if (c!=0) return c;
+                }
 
-                return x.ToCharArray().Select(a => Xn.cardVal(a)).Sum() -y.ToCharArray().Select(a => Xn.cardVal(a)).Sum();
+                return 0;
             }
         }
 
@@ -88,6 +142,14 @@ static class Day7{
         }
 
         Console.WriteLine($"Sum: {sumA}");
+
+
+        var cB = new CompB();
+        var orderedsetsB = sets.OrderBy(a => a.Key, cB);
+
+        for (int i = 0; i < orderedsetsB.Count(); i++) {
+            sumB += (i + 1) * orderedsetsB.Skip(i).Take(1).Single().Value;
+        }
         Console.WriteLine($"SumB: {sumB}");
     }
 }

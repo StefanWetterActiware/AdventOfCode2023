@@ -15,7 +15,7 @@ static class Day10 {
         Regex dayNoR = new(@"\d*$");
 
         var lines = Helper.getInputAsLines(int.Parse(dayNoR.Match(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name).Value),
-                                           test:false).Select(a=>a.ToCharArray()).ToArray();
+                                           test:true).Select(a=>a.ToCharArray()).ToArray();
 
 
         var sumB = 0;
@@ -84,6 +84,69 @@ static class Day10 {
             next.type=lines[next.point.Y][next.point.X];
             if (next.type=='S') break;
             list.Add(next);
+        }
+
+        for (int i = 0; i < lines.Count(); i++)
+        {
+            for (int j = 0; j < lines[i].Count(); j++)
+            {
+                lines[i][j] = ' ';
+            }
+            
+        }
+        foreach (var item in list)
+        {
+            lines[item.point.Y][item.point.X] = item.type;
+        }
+
+        foreach (var item in list)
+        {
+            var nachbarnLinks = new List<Point>();
+            if (item.type  == '|' ) {
+                if (item.isStart)
+                    nachbarnLinks.Add(new Point(item.point.X + 1 ,item.point.Y));
+                else
+                    nachbarnLinks.Add(new Point(item.point.X + (item.point.Y - item.previous.Y) ,item.point.Y));
+            }
+            else if (item.type  == '-' )
+                nachbarnLinks.Add(new Point(item.point.X ,item.point.Y - (item.point.X-item.previous.X)));
+            else if (item.type  == '7' ){
+                if ((item.point.X-item.previous.X) > 0){//kommt von links ->Außenecke
+                    nachbarnLinks.Add(new Point(item.point.X ,item.point.Y-1));
+                    nachbarnLinks.Add(new Point(item.point.X+1 ,item.point.Y-1));
+                    nachbarnLinks.Add(new Point(item.point.X+1 ,item.point.Y));
+                }
+            } else if (item.type  == 'F' ){
+                if ((item.point.Y-item.previous.Y) < 0){//kommt von unten ->Außenecke
+                    nachbarnLinks.Add(new Point(item.point.X-1 ,item.point.Y));
+                    nachbarnLinks.Add(new Point(item.point.X-1 ,item.point.Y-1));
+                    nachbarnLinks.Add(new Point(item.point.X ,item.point.Y-1));
+                }
+            } else if (item.type  == 'L' ){
+                if ((item.point.X-item.previous.X) < 0){//kommt von rechts ->Außenecke
+                    nachbarnLinks.Add(new Point(item.point.X ,item.point.Y+1));
+                    nachbarnLinks.Add(new Point(item.point.X-1 ,item.point.Y+1));
+                    nachbarnLinks.Add(new Point(item.point.X-1 ,item.point.Y));
+                }
+            } else if (item.type  == 'J' ){
+                if ((item.point.Y-item.previous.Y) > 0){//kommt von oben ->Außenecke
+                    nachbarnLinks.Add(new Point(item.point.X+1 ,item.point.Y));
+                    nachbarnLinks.Add(new Point(item.point.X+1 ,item.point.Y+1));
+                    nachbarnLinks.Add(new Point(item.point.X ,item.point.Y+1));
+                }
+            }
+
+            foreach (var nachbar in nachbarnLinks)
+            {
+                if (nachbar.X >= 0 && nachbar.X < lines.First().Count() && nachbar.Y >= 0 && nachbar.Y < lines.Count())
+                    if (lines[nachbar.Y][nachbar.X] == ' ')
+                        lines[nachbar.Y][nachbar.X] = 'I';
+            }
+        }
+
+        foreach (var item in lines)
+        {
+            sumB += System.Text.RegularExpressions.Regex.Matches(new string(item), "I").Count;
         }
 
         Console.WriteLine($"Sum: {list.Count()/2}");

@@ -27,9 +27,23 @@ static class Day10 {
         var sieben = new List<Point>(){new Point(-1,0), new Point(0,1)};
         var ef = new List<Point>(){new Point(1,0), new Point(0,1)};
 
-        var start = new Pipepoint{point = new Point(62, 63),type='|',stepcount=0,isStart=true};
+        Point sp = new(-1,-1);
+        for (int i = 0; i < lines.Count(); i++)
+        {
+            for (int j = 0; j < lines[i].Count(); j++)
+            {
+                if (lines[i][j] == 'S'){
+                    sp = new Point(j,i);
+                    break;
+                }
+            }
+            
+        }
+
+
+        var start = new Pipepoint{point = sp,type='|',stepcount=0,isStart=true};
         var list = new List<Pipepoint>(){start};
-        var second = new Pipepoint{point = new Point(62, 64),type='|',stepcount=1,previous=start.point};
+        var second = new Pipepoint{point = new Point(start.point.X, start.point.Y+1),type=lines[start.point.Y+1][start.point.X],stepcount=1,previous=start.point};
         list.Add(second);
         while (list.Last().point != start.point && list.Count>1){
             var prev = list.Last().previous;

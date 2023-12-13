@@ -22,7 +22,7 @@ static class Day12 {
         var lines = input.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
 
         var sumA = 0;
-        var sumB = 0;
+        long sumB = 0;
 
         Regex amAnfangPassend = new("^[\\?#]*$");
 
@@ -30,13 +30,14 @@ static class Day12 {
         System.IO.File.Delete("counterNoBF.txt");
         foreach (var lineRaw in lines)
         {
+            var thisSum=0;
             System.IO.File.AppendAllText("counterNoBF.txt", $"{sumA-before}{Environment.NewLine}");
             before=sumA;
 
             var rawParts = lineRaw.Split(' ');
             //Teil2
-            rawParts[0] = rawParts[0] + '?' + rawParts[0] + '?' + rawParts[0] + '?' + rawParts[0] + '?' + rawParts[0];
-            rawParts[1] = rawParts[1] + ',' + rawParts[1] + ',' + rawParts[1] + ',' + rawParts[1] + ',' + rawParts[1];
+            // rawParts[0] = rawParts[0] + '?' + rawParts[0] + '?' + rawParts[0] + '?' + rawParts[0] + '?' + rawParts[0];
+            // rawParts[1] = rawParts[1] + ',' + rawParts[1] + ',' + rawParts[1] + ',' + rawParts[1] + ',' + rawParts[1];
 
             //.Select(a=> new KeyValuePair(a.Split(' ')[0], )
             var groups=rawParts[1].Split(',').Select(a=>int.Parse(a)).ToList();
@@ -45,6 +46,7 @@ static class Day12 {
             var minL = groups.Sum()+groups.Count()-1;
             if (l==minL){
                 sumA++;
+                sumB+=5;
                 continue;
             }
 
@@ -114,6 +116,7 @@ static class Day12 {
             if (groups.Count() == 0){
                 //ok, alle unter. Keine Varianzen
                 sumA++;
+                sumB+=5;
                 continue;
             }
 
@@ -154,7 +157,7 @@ static class Day12 {
                     unten*=i;
                 }
 
-                sumA+=oben/unten;
+                thisSum+=oben/unten;
             } else {
                 System.Text.RegularExpressions.Regex fr = new("\\?");
                 var frM = fr.Matches(line);
@@ -173,11 +176,13 @@ static class Day12 {
 
                     var countGrups = new string(bruteForceSrcLine).Split('.',StringSplitOptions.RemoveEmptyEntries);
                     if (countGrups.Length == groups.Count() && String.Join(",",groups.Select(a=>a.ToString())).Equals(String.Join(",",countGrups.Select(a=>a.ToString().Length)))){
-                        sumA++;
+                        thisSum++;
                     }
                 }
-                Console.WriteLine($"{sumA}");
-             }
+            }
+            Console.WriteLine($"{thisSum}:{sumA}");
+            sumA+=thisSum;
+            sumB+=(long)Math.Pow(thisSum,5);
         }
 
 

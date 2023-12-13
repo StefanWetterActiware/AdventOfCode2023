@@ -38,4 +38,13 @@ static class Helper
         return System.IO.File.ReadAllText(getCacheFileName(tag, test)).TrimEnd("@\r\n".ToCharArray());
     }
 
+    [DebuggerHidden]
+    public static IEnumerable<IEnumerable<string>> getBlocks(IEnumerable<string> lines) {
+        return getBlocks(String.Join("\n", lines));
+    }
+    [DebuggerHidden]
+    public static IEnumerable<List<string>> getBlocks(string input) {
+        return input.Split("\n\n").Select(a => a.Split("\n").ToList());
+    }
+
 }

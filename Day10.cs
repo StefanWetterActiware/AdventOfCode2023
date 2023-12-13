@@ -14,9 +14,22 @@ static class Day10 {
     internal static void doit() {
         Regex dayNoR = new(@"\d*$");
 
-        var lines = Helper.getInputAsLines(int.Parse(dayNoR.Match(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name).Value),
-                                           test:true).Select(a=>a.ToCharArray()).ToArray();
+        var input = Helper.getInput(int.Parse(dayNoR.Match(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name).Value));
+                                           
+        input = """
+.F----7F7F7F7F-7....
+.|F--7||||||||FJ....
+.||.FJ||||||||L7....
+FJL7L7LJLJ||LJ.L-7..
+L--J.L7...LJS7F-7L7.
+....F-J..F7FJ|L7L7L7
+....L7.F7||L7|.L7L7|
+.....|FJLJ|FJ|F7|.LJ
+....FJL-7.||.||||...
+....L---J.LJ.LJLJ...
+""";
 
+        var lines = input.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(a=>a.ToCharArray()).ToArray();
 
         var sumB = 0;
 
@@ -86,18 +99,23 @@ static class Day10 {
             list.Add(next);
         }
 
+        //alles voll I
         for (int i = 0; i < lines.Count(); i++)
         {
             for (int j = 0; j < lines[i].Count(); j++)
             {
-                lines[i][j] = ' ';
+                lines[i][j] = 'I';
             }
             
         }
+        //pipe rein
         foreach (var item in list)
         {
             lines[item.point.Y][item.point.X] = item.type;
         }
+
+        //jetzt 'O's füllen vom Rand
+        //TODO
 
         foreach (var item in list)
         {
@@ -144,8 +162,10 @@ static class Day10 {
             }
         }
 
+        Console.WriteLine("");
         foreach (var item in lines)
         {
+            Console.WriteLine(new string(item));
             sumB += System.Text.RegularExpressions.Regex.Matches(new string(item), "I").Count;
         }
 

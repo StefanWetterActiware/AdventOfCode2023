@@ -72,6 +72,8 @@ static class Day12 {
         if (anzRauten == groups.Sum()){
             if (passt(line.Replace('?','.'), groups))
                 return 1;
+            else if (line.StartsWith('#')) // Dann gibts keinen Treffer. Und abschneidern und so geht dann auch nicht
+                return 0;
         }
 
         if (groups.Count() == 1) {      
@@ -85,11 +87,11 @@ static class Day12 {
             if (line.Distinct().Count() == 1 && line[0] == '?')
                 return line.Length - groups.Single() + 1;
 
-            if (line.LastIndexOf('#') - line.IndexOf('#')>groups.Single())
+            if (line.LastIndexOf('#') - line.IndexOf('#')>=groups.Single())
                 return 0;
 
-            if (line.IndexOf('#') > groups.Single()+1)
-                line=line[(line.IndexOf('#')-groups.Single()+1)..];
+            if (line.LastIndexOf('#') > groups.Single()+1)
+                line=line[(line.LastIndexOf('#')-groups.Single()+1)..];
 
             long lastDing=0;
             foreach (var teil in line.Split('.').Where(a=> a.Length >= groups.Single()))
@@ -173,7 +175,13 @@ static class Day12 {
         // Vor erstem Punkt weg, wenn zu kurz für die erste Gruppe
         var ersterPunkt = line.IndexOf('.');
         if (ersterPunkt > -1 && ersterPunkt < groups.First()) {
+            if (line[..ersterPunkt].Contains('#')) return 0;
             return getPossibilities(line[ersterPunkt..] ,groups);
+        }
+        var letzterPunkt = line.LastIndexOf('.');
+        if (letzterPunkt > -1 && line.Length - letzterPunkt -1 < groups.Last() -1) {
+            if (line[letzterPunkt..].Contains('#')) return 0;
+            return getPossibilities(line[..letzterPunkt] ,groups);
         }
 
         // Wenn len+1 Leer ist, dann daran splitten und vorn ists entweder genau eine möglichkeit oder halt gar keine...
@@ -206,7 +214,7 @@ static class Day12 {
         var input = Helper.getInput(int.Parse(dayNoR.Match(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name).Value));
                                            
 //         input = """
-// ?.?#.?.#???..? 1,4
+// ???#??#?#?#?.. 1,7
 // """;
 
         var lines = input.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
@@ -216,7 +224,6 @@ static class Day12 {
 
         Regex amAnfangPassend = new("^[\\?#]*$");
 
-        System.IO.File.Delete("counterNoBF.txt");
         foreach (var lineRaw in lines)
         {
             var rawParts = lineRaw.Split(' ');
@@ -226,7 +233,6 @@ static class Day12 {
             
             var thisA = getPossibilities(line,groups);
             sumA+=thisA;
-            System.IO.File.AppendAllText("counterNoBF.txt", $"{thisA}{Environment.NewLine}");
 
             //Teil2
             line = rawParts[0] + '?' + rawParts[0] + '?' + rawParts[0] + '?' + rawParts[0] + '?' + rawParts[0];
@@ -235,7 +241,6 @@ static class Day12 {
 
             var thisB = getPossibilities(line,groups);
             sumB+=thisB;
-            System.IO.File.AppendAllText("counterNoBF_P2.txt", $"{thisB}{Environment.NewLine}");
         }
 
 

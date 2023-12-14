@@ -46,5 +46,36 @@ static class Helper
     public static IEnumerable<List<string>> getBlocks(string input) {
         return input.Split("\n\n").Select(a => a.Split("\n").ToList());
     }
+    [DebuggerHidden]
+    public static List<string> getLines(string input) {
+        return input.Trim('\n').Split("\n").ToList();
+    }
+
+    public static IEnumerable<string> traverse(IEnumerable<string> lines) {
+        var colStrings = new List<string>();
+        for (int colNo = 0; colNo < lines.First().Length; colNo++)
+        {
+            colStrings.Add(String.Join("",lines.Select(a=>a[colNo])));
+        }
+        return colStrings;
+    }
+
+    public static IEnumerable<string> turnRight(IEnumerable<string> lines) {
+        var colStrings = new List<string>();
+        for (int colNo = 0; colNo < lines.First().Count(); colNo++)
+        {
+            colStrings.Add(String.Join("",lines.Reverse().Select(a=>a[colNo])));
+        }
+        return colStrings;
+    }
+
+    public static IEnumerable<string> turnLeft(IEnumerable<string> lines) {
+        var colStrings = new List<string>();
+        for (int colNo = lines.First().Count()-1; colNo >= 0; colNo--)
+        {
+            colStrings.Add(String.Join("",lines.Select(a=>a[colNo])));
+        }
+        return colStrings;
+    }
 
 }

@@ -11,35 +11,34 @@ static class Day12 {
         return (countGrups.Length == groups.Count() && String.Join(",",groups.Select(a=>a.ToString())).Equals(String.Join(",",countGrups.Select(a=>a.ToString().Length))));
     }
 
-    static long getPossibilitiesBruteForce(string line, IEnumerable<int> groups) {
+    static long getPossibilitiesBruteForce(string line, int lastgroup) {
         if (String.IsNullOrWhiteSpace(line)) return 0;
-        if (!groups.Any()) return 1;
 
         if (line.Contains('#')) {
-            if (groups.Count() == 1 && line.LastIndexOf('#') - line.IndexOf('#') > groups.Single()-1) return 0;
-            if (groups.Count() == 1 && line.LastIndexOf('#') - line.IndexOf('#') == groups.Single()-1) return 1;
+            if (line.LastIndexOf('#') - line.IndexOf('#') > lastgroup-1) return 0;
+            if (line.LastIndexOf('#') - line.IndexOf('#') == lastgroup-1) return 1;
         }
 
         long BFsum = 0;
         System.Text.RegularExpressions.Regex fr = new("\\?");
-        var frM = fr.Matches(line);
-        var anzFragez=frM.Count;
         Console.WriteLine("Bruteforcing " + line);
 
-        for (int i = 0; i < Math.Pow(2,anzFragez); i++)
+        for (ulong i = (ulong)Math.Pow(2,lastgroup)-1; i < Math.Pow(2,line.Length); i=i<<1)
         {
             var bruteForceSrcLine=line.ToCharArray();
-            for (int j = 0; j < anzFragez; j++)
+            for (int j = 0; j < line.Length; j++)
             {
-                if ((i & (int)Math.Pow(2,j)) == (int)Math.Pow(2,j)) {
-                    bruteForceSrcLine[frM[j].Index] = '#';
-                } else {
-                    bruteForceSrcLine[frM[j].Index] = '.';
+                if (bruteForceSrcLine[j] == '?') {
+                    if ((i & (ulong)Math.Pow(2,j)) == (ulong)Math.Pow(2,j)) {
+                        bruteForceSrcLine[j] = '#';
+                    } else {
+                        bruteForceSrcLine[j] = '.';
+                    }
                 }
             }
 
-            if (bruteForceSrcLine.Count(a=>a=='#') == groups.Sum())
-                if (passt(new string(bruteForceSrcLine),groups)){
+            if (bruteForceSrcLine.Count(a=>a=='#') == lastgroup)
+                if (passt(new string(bruteForceSrcLine),new []{lastgroup})){
                     BFsum++;
                 }
         }
@@ -104,7 +103,7 @@ static class Day12 {
                     continue;
                 }
 
-                lastDing+=getPossibilitiesBruteForce(teil,groups);
+                lastDing+=getPossibilitiesBruteForce(teil,groups.Single());
             }
             return lastDing;
         }
@@ -217,7 +216,7 @@ static class Day12 {
 // ???#??#?#?#?.. 1,7
 // """;
 
-        var lines = input.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+        var lines = input.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
         long sumA = 0;
         long sumB = 0;

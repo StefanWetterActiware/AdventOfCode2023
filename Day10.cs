@@ -2,6 +2,11 @@ using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
+/* WORST SOLUTION EVER. DON'T READ...
+   Something went wrong, columns & rows are switched, i don't know how that was. But finally it worked...
+*/
+
+
 public class Pipepoint {
     public Point point {get; set;}
     public long stepcount {get;set;}
@@ -11,23 +16,37 @@ public class Pipepoint {
 }
 
 static class Day10 {
+    internal static void floodFill(int x, int y, ref List<List<char>> lines){
+        if (x < 0 || y < 0) return;
+        if (x>= lines.Count()) return;
+        if (y>= lines[0].Count()) return;
+        if (lines[x][y] == 'x') return;
+        if (lines[x][y] == 'o') return;
+        lines[x][y] = 'o';
+
+        floodFill(x, y+1, ref lines);
+        floodFill(x, y-1, ref lines);
+        floodFill(x+1, y, ref lines);
+        floodFill(x-1, y, ref lines);
+    }
+
     internal static void doit() {
         Regex dayNoR = new(@"\d*$");
 
         var input = Helper.getInput(int.Parse(dayNoR.Match(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name).Value));
                                            
-        input = """
-.F----7F7F7F7F-7....
-.|F--7||||||||FJ....
-.||.FJ||||||||L7....
-FJL7L7LJLJ||LJ.L-7..
-L--J.L7...LJS7F-7L7.
-....F-J..F7FJ|L7L7L7
-....L7.F7||L7|.L7L7|
-.....|FJLJ|FJ|F7|.LJ
-....FJL-7.||.||||...
-....L---J.LJ.LJLJ...
-""";
+//         input = """
+// .F----7F7F7F7F-7....
+// .|F--7||||||||FJ....
+// .||.FJ||||||||L7....
+// FJL7L7LJLJ||LJ.L-7..
+// L--J.L7...LJS7F-7L7.
+// ....F-J..F7FJ|L7L7L7
+// ....L7.F7||L7|.L7L7|
+// .....|FJLJ|FJ|F7|.LJ
+// ....FJL-7.||.||||...
+// ....L---J.LJ.LJLJ...
+// """;
 
         var lines = input.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(a=>a.ToCharArray()).ToArray();
 
@@ -98,78 +117,84 @@ L--J.L7...LJS7F-7L7.
             if (next.type=='S') break;
             list.Add(next);
         }
+        Console.WriteLine($"Sum: {list.Count()/2}");
 
-        //alles voll I
-        for (int i = 0; i < lines.Count(); i++)
+        //Part2
+        List<List<char>> dottetInput = new();
+        List<char> muster = new();
+        for (int i = 0; i < lines[0].Length; i++)
         {
-            for (int j = 0; j < lines[i].Count(); j++)
-            {
-                lines[i][j] = 'I';
-            }
-            
+            muster.Add('.');
+            muster.Add('.');
+            muster.Add('.');
         }
+
+        //alles voll .
+        Console.Clear();
+        for (int i = 0; i < lines.Count()*3; i++)
+        {
+            dottetInput.Add(muster.ToArray().ToList());
+        }
+
         //pipe rein
         foreach (var item in list)
         {
-            lines[item.point.Y][item.point.X] = item.type;
-        }
-
-        //jetzt 'O's füllen vom Rand
-        //TODO
-
-        foreach (var item in list)
-        {
-            var nachbarnLinks = new List<Point>();
-            if (item.type  == '|' ) {
-                if (item.isStart)
-                    nachbarnLinks.Add(new Point(item.point.X + 1 ,item.point.Y));
-                else
-                    nachbarnLinks.Add(new Point(item.point.X + (item.point.Y - item.previous.Y) ,item.point.Y));
-            }
-            else if (item.type  == '-' )
-                nachbarnLinks.Add(new Point(item.point.X ,item.point.Y - (item.point.X-item.previous.X)));
-            else if (item.type  == '7' ){
-                if ((item.point.X-item.previous.X) > 0){//kommt von links ->Außenecke
-                    nachbarnLinks.Add(new Point(item.point.X ,item.point.Y-1));
-                    nachbarnLinks.Add(new Point(item.point.X+1 ,item.point.Y-1));
-                    nachbarnLinks.Add(new Point(item.point.X+1 ,item.point.Y));
-                }
-            } else if (item.type  == 'F' ){
-                if ((item.point.Y-item.previous.Y) < 0){//kommt von unten ->Außenecke
-                    nachbarnLinks.Add(new Point(item.point.X-1 ,item.point.Y));
-                    nachbarnLinks.Add(new Point(item.point.X-1 ,item.point.Y-1));
-                    nachbarnLinks.Add(new Point(item.point.X ,item.point.Y-1));
-                }
-            } else if (item.type  == 'L' ){
-                if ((item.point.X-item.previous.X) < 0){//kommt von rechts ->Außenecke
-                    nachbarnLinks.Add(new Point(item.point.X ,item.point.Y+1));
-                    nachbarnLinks.Add(new Point(item.point.X-1 ,item.point.Y+1));
-                    nachbarnLinks.Add(new Point(item.point.X-1 ,item.point.Y));
-                }
-            } else if (item.type  == 'J' ){
-                if ((item.point.Y-item.previous.Y) > 0){//kommt von oben ->Außenecke
-                    nachbarnLinks.Add(new Point(item.point.X+1 ,item.point.Y));
-                    nachbarnLinks.Add(new Point(item.point.X+1 ,item.point.Y+1));
-                    nachbarnLinks.Add(new Point(item.point.X ,item.point.Y+1));
-                }
-            }
-
-            foreach (var nachbar in nachbarnLinks)
+            switch (item.type)
             {
-                if (nachbar.X >= 0 && nachbar.X < lines.First().Count() && nachbar.Y >= 0 && nachbar.Y < lines.Count())
-                    if (lines[nachbar.Y][nachbar.X] == ' ')
-                        lines[nachbar.Y][nachbar.X] = 'I';
+                case '|':
+                    dottetInput[item.point.Y*3][item.point.X * 3+1] = 'x';
+                    dottetInput[item.point.Y*3+1][item.point.X * 3+1] = 'x';
+                    dottetInput[item.point.Y*3+2][item.point.X * 3+1] = 'x';
+                    break;
+                case 'F':
+                    dottetInput[item.point.Y*3+1][item.point.X * 3+1] = 'x';
+                    dottetInput[item.point.Y*3+2][item.point.X * 3+1] = 'x';
+                    dottetInput[item.point.Y*3+1] [item.point.X * 3+2]= 'x';
+                    break;
+                case '7':
+                    dottetInput[item.point.Y*3+1][item.point.X * 3+1] = 'x';
+                    dottetInput[item.point.Y*3+1][item.point.X * 3] = 'x';
+                    dottetInput[item.point.Y*3+2][item.point.X * 3+1] = 'x';
+                    break;
+                case '-':
+                    dottetInput[item.point.Y*3+1][item.point.X * 3] = 'x';
+                    dottetInput[item.point.Y*3+1][item.point.X * 3+1] = 'x';
+                    dottetInput[item.point.Y*3+1][item.point.X * 3+2] = 'x';
+                    break;
+                case 'J':
+                    dottetInput[item.point.Y*3] [item.point.X * 3+1]= 'x';
+                    dottetInput[item.point.Y*3+1][item.point.X * 3+1] = 'x';
+                    dottetInput[item.point.Y*3+1][item.point.X * 3] = 'x';
+                    break;
+                case 'L':
+                    dottetInput[item.point.Y*3][item.point.X * 3+1] = 'x';
+                    dottetInput[item.point.Y*3+1][item.point.X * 3+1] = 'x';
+                    dottetInput[item.point.Y*3+1][item.point.X * 3+2] = 'x';
+                    break;
             }
         }
 
-        Console.WriteLine("");
-        foreach (var item in lines)
+        foreach (var item in dottetInput)
         {
-            Console.WriteLine(new string(item));
-            sumB += System.Text.RegularExpressions.Regex.Matches(new string(item), "I").Count;
+            Console.WriteLine(item.ToArray());
         }
 
-        Console.WriteLine($"Sum: {list.Count()/2}");
-        Console.WriteLine($"SumB: {sumB}");
+        floodFill(0,0,ref dottetInput);
+        foreach (var item in dottetInput)
+        {
+            Console.WriteLine(item.ToArray());
+        }
+
+        for (int i = 0; i < dottetInput.Count; i+=3)
+        {
+            for (int j = 0; j < dottetInput[0].Count; j+=3)
+            {
+                if (dottetInput[i][j] == '.' && dottetInput[i][j+1] == '.' && dottetInput[i][j+2] == '.' &&
+                    dottetInput[i+1][j] == '.' && dottetInput[i+1][j+1] == '.' && dottetInput[i+1][j+2] == '.' &&
+                    dottetInput[i+2][j] == '.' && dottetInput[i+2][j+1] == '.' && dottetInput[i+2][j+2] == '.')
+                    sumB++;
+            }
+        }
+        Console.WriteLine("B: " + sumB);
     }
 }

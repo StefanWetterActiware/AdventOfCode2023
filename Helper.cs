@@ -5,6 +5,7 @@ static class Helper
 {
     private static string cachefileTempl = "input/day{0}";
 
+    [DebuggerHidden]
     private static string getCacheFileName(int tag, bool test = false) {
         return string.Format(cachefileTempl, tag) + (test ? "test":"");
     }
@@ -48,7 +49,7 @@ static class Helper
     }
     [DebuggerHidden]
     public static List<string> getLines(string input) {
-        return input.Trim('\n').Split("\n").ToList();
+        return input.Trim('\n').Split("\n").Select(a=>a.TrimEnd('\r')).ToList();
     }
 
     public static IEnumerable<string> traverse(IEnumerable<string> lines) {

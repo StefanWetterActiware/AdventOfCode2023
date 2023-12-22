@@ -96,7 +96,7 @@ static class Day21 {
 
         long sumA=0;
 
-        for (int i = Math.Max(start.X-anzSteps,0); i < Math.Min(start.X+anzSteps, lines.Count); i++)
+        for (int i = Math.Max(start.X-anzSteps,0); i < Math.Min(start.X+anzSteps+1, lines.Count); i++)
         {
             Console.Write(i + ":");
             var diff = Math.Abs(start.X-i);

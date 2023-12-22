@@ -111,7 +111,17 @@ static class Day22 {
     static Point start = new();
 
     static SortedDictionary<string, bool> cache = new();
-    
+
+    static void doFall(Block faller, ref List<Block> fallListe, ref List<Block> alleBloecke){
+        var localFallCopy = fallListe.ToList();
+        foreach (var item in faller.stuetzt.Where(a => a.gestuetztVon.All(b => localFallCopy.Contains(b))).OrderBy(a=> a.gestuetztVon.Count()))
+        {
+            fallListe.Add(item);
+            localFallCopy = fallListe.ToList();
+            doFall(item, ref fallListe, ref alleBloecke);
+        }
+    }
+
     internal static void doit() {
         Regex dayNoR = new(@"\d*$");
 
@@ -163,11 +173,19 @@ static class Day22 {
             aBlock.gestuetztVon = gestuetztVon.ToList();
         }
 
-        var anzKannNICHTentferntwerden = blocks.Where(a=> a.gestuetztVon.Count() == 1).Select(a=>a.gestuetztVon.Single()).Distinct().Count();
+        var anzKannNICHTentferntwerden = blocks.Where(a=> a.gestuetztVon.Count() == 1).Select(a=>a.gestuetztVon.Single()).Distinct();
 
-        Console.WriteLine($"a: {blocks.Count - anzKannNICHTentferntwerden}");
+        Console.WriteLine($"a: {blocks.Count - anzKannNICHTentferntwerden.Count()}");
 
-        // Console.WriteLine("a: " + sumA);
-        // Console.WriteLine("b: " + sumB);
+        long sumB=0;
+        foreach (var removeBlock in blocks)
+        {
+            var fallListe = new List<Block>();
+            fallListe.Add(removeBlock);
+            doFall(removeBlock, ref fallListe, ref blocks);
+            sumB+=(fallListe.Count-1);
+        }
+
+        Console.WriteLine("b: " + sumB);
     }
 }
